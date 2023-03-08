@@ -13,11 +13,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $currencyFromOption = $_REQUEST["CurrencyTo"];
         $currencyToOption = $_REQUEST["CurrencyFrom"];
     }
+
     $currencyFrom = validateInput($_REQUEST["CurrencyFromInput"]);
     $currencyFrom = (float)$currencyFrom;
 
     if ($currencyFrom == 0) {
         $error = "&lt;&lt; Please give an amount to convert!";
+    } elseif ($currencyFromOption == $currencyToOption) {
+        $convertedCurrency = $currencyFrom;
     } else {
         $currencyTo = $currencyRates[$currencyToOption];
         $convertedCurrency = round($currencyFrom * $currencyTo, 2);
@@ -46,21 +49,34 @@ function validateInput($inputData) {
 <h1>Valuta Converter</h1>
 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
     <label for="CurrencyFrom">From:</label>
-    <input type="text" name="CurrencyFromInput" id="CurrencyFromInput" value="<?php echo !isset($currencyFrom)? '' : $currencyFrom ?>">
+    <input  type="text" 
+            name="CurrencyFromInput" 
+            id="CurrencyFromInput" 
+            style="text-align: right" 
+            value="<?php echo !isset($currencyFrom)? '' : $currencyFrom ?>">
     <?php echo $error ?>
-    <select name="CurrencyFrom" id="CurrencyFrom">
-        <option value="euro" <?php if ($currencyFromOption == "euro") { echo "selected"; } ?>>Euro</option>
-        <option value="dollar" <?php if ($currencyFromOption == "dollar") { echo "selected"; } ?>>Dollar</option>
+    <select name="CurrencyFrom" id="CurrencyFrom" onChange="this.form.submit()">
+        <?php
+        foreach ($currencyRates as $key => $value) {
+            echo "<option value='" . $key . "'", ($currencyFromOption == $key) ? "selected" : '', ">" . ucfirst($key) . "</option>";
+        }
+        ?>
     </select>
     <button name="SwitchCurrency" id="SwitchCurrency" value="<->">&lt;-&gt;</button>
     <label for="CurrencyTo">To:</label>
-    <input type="text" name="CurrencyToDisplay" id="CurrencyToDisplay" value="<?php echo !isset($convertedCurrency) ? '' : $convertedCurrency ?>" disabled />
-    <select name="CurrencyTo" id="CurrencyTo">
-        <option value="euro" <?php if ($currencyToOption == "euro") { echo "selected"; } ?>>Euro</option>
-        <option value="dollar" <?php if ($currencyToOption == "dollar") { echo "selected"; } ?>>Dollar</option>
+    <input  type="text" 
+            name="CurrencyToDisplay" 
+            id="CurrencyToDisplay" 
+            style="text-align: right" 
+            value="<?php echo !isset($convertedCurrency) ? '' : $convertedCurrency ?>" disabled />
+    <select name="CurrencyTo" id="CurrencyTo" onChange="this.form.submit()">
+        <?php
+        foreach ($currencyRates as $key => $value) {
+            echo "<option value='" . $key . "'", ($currencyToOption == $key) ? "selected" : '', ">" . ucfirst($key) . "</option>";
+        }
+        ?>
     </select>
     <input type="submit" value="Convert" />
-</form>
-    
+</form> 
 </body>
 </html>
